@@ -1,0 +1,90 @@
+{% extends "index.html" %}
+{% block content %}
+
+<div class="max-w-6xl mx-auto p-6 mt-10 bg-white rounded-2xl shadow-lg">
+  <h2 class="text-4xl font-bold text-gray-800 mb-8 border-b pb-4 flex items-center">
+    🛒 <span class="ml-3">Your Cart</span>
+  </h2>
+
+  {% if cart_items %}
+    <div class="space-y-6">
+      {% for item in cart_items %}
+        <div class="flex items-center justify-between bg-gray-200 p-5 rounded-xl shadow-sm hover:shadow-md transition">
+          <!-- Product Info -->
+          <div class="flex items-center gap-5">
+            <img src="{{ item.product.product_image.url }}"
+                 alt="{{ item.product.product_name }}"
+                 class="w-24 h-24 object-cover rounded-xl border border-gray-300 shadow-sm">
+            <div>
+              <h3 class="text-xl font-semibold text-gray-900">{{ item.product.product_name }}</h3>
+              <p class="text-gray-500 text-sm">Price: ₹{{ item.product.final_rupees }}</p>
+              <p class="text-gray-600 text-sm">Quantity: {{ item.quantity }}</p>
+            </div>
+          </div>
+
+          <!-- Total & Action -->
+          <div class="text-right">
+            <p class="text-lg font-bold text-blue-700">
+              ₹{{ item.get_total_price|floatformat:2 }}
+            </p>
+            <a href="{% url 'remove_from_cart' item.product.id %}"
+               class="text-red-500 hover:underline font-bold text-sm mt-2 inline-block">Remove</a>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- Cart Summary -->
+    <div class="mt-10 text-right border-t pt-6">
+      <h3 class="text-2xl font-bold text-gray-800">Total: ₹{{ total|floatformat:2 }}</h3>
+      <a href="{% url 'order_details' user.id %}"
+         class="mt-4 inline-block bg-blue-600 text-white px-6 py-2 rounded-lg shadow hover:bg-blue-700 transition">
+        Continue
+      </a>
+      {% comment %}
+      <a href="{% url 'checkout' %}"
+         class="ml-4 inline-block bg-green-600 text-white px-6 py-2 rounded-lg shadow hover:bg-green-700 transition">
+        Proceed to Checkout
+      </a>
+      {% endcomment %}
+    </div>
+  {% else %}
+    <div class="text-center text-gray-600">
+      <p class="text-lg mb-2">Your cart is empty.</p>
+      <a href="{% url 'product_list' %}" class="text-blue-600 hover:underline">Continue Shopping</a>
+    </div>
+  {% endif %}
+</div>
+
+{% endblock %}
+
+
+{% comment %} {% extends "index.html" %}
+{% block content %}
+<div class="max-w-4xl mx-auto mt-10 p-4">
+  <h2 class="text-2xl font-bold mb-6 text-center">🛒 Your Cart</h2>
+
+  <div class="divide-y divide-gray-200 bg-white shadow rounded-lg">
+    {% for product in products %}
+      <div class="flex items-center p-4">
+        <img src="{{ product.product_image.url }}" alt="{{ product.product_name }}" class="w-16 h-16 object-cover rounded mr-4 border border-gray-300">
+        <div class="flex-grow">
+          <h3 class="text-md font-medium text-gray-800">{{ product.product_name }}</h3>
+          <p class="text-sm text-gray-500">₹ {{ product.rupees }}</p>
+        </div>
+        <a href="{% url 'remove_from_cart' product.id %}" class="text-red-600 text-sm hover:underline ml-4">Remove</a>
+      </div>
+    {% empty %}
+      <div class="p-4 text-center text-gray-500">
+        Your cart is empty.
+      </div>
+    {% endfor %}
+  </div>
+
+  {% if products %}
+  <div class="mt-6 text-right text-lg font-semibold text-gray-800">
+    Total: ₹ {{ total}}
+  </div>
+  {% endif %}
+</div>
+{% endblock %} {% endcomment %}

@@ -1,0 +1,39 @@
+<!-- templates/confirm_delete.html -->
+{% extends "index.html" %}
+{% block content %}
+<div class="max-w-md mx-auto mt-16 p-6 bg-white shadow rounded-xl text-center">
+  <h2 class="text-lg font-bold mb-4">Confirm Deletion</h2>
+  <p>Are you sure you want to delete product <strong>{{ product.product_name }}</strong>?</p>
+  <form method="POST" class="mt-4">
+    {% csrf_token %}
+    <button type="submit" id="deleteBtn" 
+            class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 mr-2">
+      Yes, Delete
+    </button>
+    <a href="{% url 'index' %}"
+       class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400">
+      Cancel
+    </a>
+  </form>
+</div>
+<script>
+document.getElementById("deleteBtn").addEventListener("click", async function() {
+    const productId = "{{ product.id }}";
+    if (!confirm("Are you sure?")) return;
+
+    const response = await fetch(`/api/products/delete/${productId}/`, {
+        method: "DELETE",
+        headers: {
+            "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    });
+
+    if (response.ok) {
+        alert("Product deleted successfully");
+        window.location.href = "{% url 'index' %}";
+    } else {
+        alert("Failed to delete product");
+    }
+});
+</script>
+{% endblock %}

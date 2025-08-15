@@ -1,0 +1,4 @@
+1.celery -A e_commerce worker --loglevel=INFO
+2.py manage.py eunserver
+3.py manage.py tailwind start
+4.redis server start in file manager

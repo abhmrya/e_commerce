@@ -1,0 +1,367 @@
+{% load static %}
+{% get_media_prefix as MEDIA_URL %}
+{% load tailwind_tags %}
+
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>{% block title %}E-Commerce{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    {% tailwind_css %}
+
+      <link rel="stylesheet" href="{% static 'style.css' %}" />
+
+    <!-- Swiper CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <!-- Swiper JS -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+  </head>
+
+  <body class="bg-gray-800">
+
+<nav class="bg-gray-900 text-white px-6 py-3 flex flex-wrap items-center justify-between">
+  <!-- Left: Logo & Navigation -->
+  <div class="flex items-center space-x-6">
+    <span class="text-white font-bold text-xl">My <span class="text-blue-500">Shop</span></span>
+
+    <a href="{% url 'index' %}" class="hover:text-blue-400">Home</a>
+    <a href="{% url 'product_list' %}" class="hover:text-blue-400">Product</a>
+    <a href="#" class="hover:text-blue-400">Live Track</a>
+    <a href="#" class="hover:text-blue-400">Trend</a>
+
+    <span class="border-l border-gray-500 h-6"></span>
+    <a href="#" class="hover:text-yellow-400">Gift Cart</a>
+  </div>
+
+  <!-- Right: Search, Language, Profile, Cart, Auth -->
+  <div class="flex items-center space-x-4 mt-3 sm:mt-0">
+    <!-- Search Icon -->
+    <button class="hover:text-blue-400">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z" />
+      </svg>
+    </button>
+
+    <!-- Language -->
+    <span class="hover:text-blue-400 cursor-pointer">🇮🇳 IN</span>
+
+    <!-- Profile, Cart, Auth -->
+    {% if user.is_authenticated %}
+      <a href="{% url 'profile' user.id %}" class="flex items-center gap-2 text-sm font-semibold">
+        {% if user.profile.photo %}
+          <img src="{{ user.profile.photo.url }}" alt="Profile"
+               class="w-8 h-8 rounded-full border-2 border-white object-cover">
+        {% else %}
+          <img src="{{ MEDIA_URL }}image.png" alt="Default"
+               class="w-8 h-8 rounded-full border-2 border-white object-cover">
+        {% endif %}
+        {{ user.username|capfirst }}
+      </a>
+
+      <!-- Cart -->
+      <a href="{% url 'view_cart' %}" class="relative text-xl hover:text-yellow-200">🛒
+        {% if cart_item_count %}
+          <span class="absolute -top-2 -right-2 bg-red-600 text-xs text-white rounded-full px-1">
+            {{ cart_item_count }}
+          </span>
+        {% endif %}
+      </a>
+      <!-- Logout -->
+      {% comment %} <a href="{% url 'logout' %}" class="text-sm border px-3 py-1 rounded-full hover:bg-white hover:text-cyan-600 transition">
+        Logout
+      </a> {% endcomment %}
+    <button onclick="logout()" class="text-sm border px-3 py-1 rounded-full hover:bg-white hover:text-cyan-600 transition">Logout</button>
+
+
+    {% else %}
+      <a href="{% url 'login' %}" class="text-sm border px-3 py-1 rounded-full hover:bg-white hover:text-cyan-600 transition">
+        Login
+      </a>
+      <a href="{% url 'register' %}" class="text-sm border px-3 py-1 rounded-full hover:bg-white hover:text-cyan-600 transition">
+        Register
+      </a>
+    {% endif %}
+  </div>
+</nav>
+
+
+    {% block content %}
+
+    <!-- Background Slider with Blur -->
+    <div id="bg-slide" class=" bg-gray-700 relative w-full h-screen py-12 bg-center bg-cover bg-no-repeat lower">
+      <div class="absolute inset-0  bg-opacity-70 backdrop-blur-sm z-0"></div>
+
+      <div class="relative z-10">
+
+<section class="bg-gray-900 text-white py-5 px-3">
+  <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+
+    <!-- LEFT TEXT -->
+    <div>
+      <h2 class="text-3xl font-bold mb-4 leading-tight max-w-screen" id="output" >
+        Your favorite Product<br> all in one place
+      </h2>
+      <p class="text-gray-300 text-base max-w-screen">
+       Customers can explore and shop from a wide range of premium and exclusive products, all easily accessible through our online store. </p>
+    </div>
+
+    <!-- RIGHT PRODUCT GRID (2 rows x 3 items = 6) -->
+    <div class="grid grid-cols-3 gap-4">
+      {% for product in products|slice:":6" %}
+      <form method="POST" action="{% url 'add_to_cart' product.id %}" class="border border-gray-600 rounded-md overflow-hidden w-full">
+        {% csrf_token %}
+        <button type="submit" class="block w-full h-[120px] group">
+          <img src="{{ product.product_image.url }}"
+               alt="{{ product.product_name }}"
+               class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
+        </button>
+      </form>
+      {% endfor %}
+    </div>
+
+  </div>
+</section>
+        {% comment %} <h1 class="text-2xl font-bold text-center text-white mb-6">🛍️ Welcome to Our Shop {{ user.username }}</h1>
+        <h2 class="text-5xl text-white font-bold text-center mb-10" id="outpu" >Best Deal in Product</h2> {% endcomment %}
+
+        <!-- Swiper -->
+        <div class="swiper mySwiper w-full max-w-5xl mx-auto mt-6">
+          <div class="swiper-wrapper">
+            {% for special in specials %}
+            <div class="swiper-slide">
+              <div class="flex items-center bg-white shadow-lg rounded-lg overflow-hidden border">
+                <div class="bg-gray-100 p-6 flex justify-center items-center w-1/3">
+                  <img src="{{ special.logo.url }}" alt="{{ special.name }} Logo" class="h-22 object-cover" />
+                </div>
+                <div class="flex items-center w-3/4 p-4">
+                  <div class="w-1/3">
+                    <img src="{{ special.image.url }}" alt="{{ special.name }}" class="h-40 object-contain" />
+                  </div>
+                  <div class="w-2/3 pl-4">
+                    <h2 class="text-lg font-semibold">{{ special.name }}</h2>
+                    <div class="flex items-center space-x-1 text-yellow-500 my-1">
+                      <span>⭐⭐⭐⭐✰</span><span class="text-gray-500 text-sm">(1,947)</span>
+                    </div>
+                    <div class="flex items-center space-x-2 mb-2">
+                      <span class="bg-green-600 text-white text-xs font-bold px-2 py-0.5 rounded">{{ special.offer }}% off</span>
+                      <span class="text-pink-700 text-xs font-semibold">Freedom Sale Deal</span>
+                    </div>
+                    <div class="text-xl font-bold text-gray-800">
+                      ₹{{ special.final_price }}
+                      <span class="line-through text-sm text-gray-500 ml-2">₹{{ special.price }}</span>
+                      <span class="text-blue-600 text-sm ml-2 font-semibold">prime</span>
+                    </div>
+                    <button class="mt-3 bg-orange-400 hover:bg-orange-500 text-white text-sm font-semibold px-4 py-2 rounded">
+                      Shop now
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          <div class="swiper-pagination mt-4"></div>
+        </div>
+
+        <!-- end Swiper -->
+
+        <!-- Product Grid -->
+    <div class="container mx-auto px-4 py-12">
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+        {% for product in products %}
+        <div class="border rounded-2xl shadow hover:shadow-lg transition bg-rose-50">
+          <div class="h-32 bg-gray-50 rounded-t-2xl overflow-hidden flex items-center justify-center">
+            <img src="{{ product.product_image.url }}" alt="{{ product.product_name }}" class="h-auto w-auto object-cover" />
+          </div>
+          <div class="p-4">
+            <h2 class="text-base font-semibold text-gray-950 truncate">{{ product.product_name }}</h2>
+            <div class="mt-2 space-y-1">
+              <div class="flex justify-between items-center">
+                <span class="text-sm text-stone-950 line-through">₹{{ product.rupees }}</span>
+                {% if product.product_offer %}
+                <span class="bg-green-400 font-bold text-zinc-950 text-xs px-2 py-0.5 rounded-full">{{ product.product_offer }}% OFF</span>
+                {% endif %}
+              </div>
+              <div class="font-bold">₹Final-{{ product.final_rupees }}</div>
+            </div>
+            <div class="text-xs text-yellow-500 mt-1">⭐ {{ product.rating }}</div>
+            <p class="text-xs text-gray-500 mt-1 line-clamp-2">{{ product.review }}</p>
+
+            {% if user.is_authenticated %}
+              {% if user.is_staff %}
+                <div class="flex justify-between mt-4 text-sm space-x-3">
+                  <a href="{% url 'edit_product' product.id %}" class="text-blue-600 border border-blue-600 px-3 py-1 rounded hover:bg-blue-600 hover:text-white">✏️ Edit</a>
+                  <a href="{% url 'delete_product' product.id %}" class="text-red-600 border border-red-600 px-3 py-1 rounded hover:bg-red-600 hover:text-white" onclick="return confirm('Are you sure?');">🗑️ Delete</a>
+                </div>
+              {% else %}
+                <a href="{% url 'add_to_cart' product.id %}" class="block mt-3 bg-green-600 hover:bg-green-700 text-white text-sm py-1.5 rounded-lg text-center">Add to Cart</a>
+              {% endif %}
+            {% endif %}
+            <a href="{% url 'product_detail' product.id %}" class="block mt-2 text-center bg-blue-600 hover:bg-blue-700 text-white text-xs py-1.5 rounded-lg">View Details</a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    {% endblock content %}
+
+    {% block footer %}
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white px-6 py-10 pt-10">
+      <div class="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-5 gap-6 text-sm">
+        <div>
+          <h3 class="text-gray-400 font-semibold mb-2">ABOUT</h3>
+          <ul class="space-y-1">
+            <li><a href="#" class="hover:underline">Contact Us</a></li>
+            <li><a href="#" class="hover:underline">About Us</a></li>
+            <li><a href="#" class="hover:underline">Careers</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-gray-400 font-semibold mb-2">GROUP COMPANIES</h3>
+          <ul class="space-y-1">
+            <li><a href="#" class="hover:underline">Myntra</a></li>
+            <li><a href="#" class="hover:underline">Cleartrip</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-gray-400 font-semibold mb-2">HELP</h3>
+          <ul class="space-y-1">
+            <li><a href="#" class="hover:underline">Payments</a></li>
+            <li><a href="#" class="hover:underline">Shipping</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-gray-400 font-semibold mb-2">CONSUMER POLICY</h3>
+          <ul class="space-y-1">
+            <li><a href="#" class="hover:underline">Terms Of Use</a></li>
+            <li><a href="#" class="hover:underline">Privacy</a></li>
+          </ul>
+        </div>
+        <div class="col-span-2 md:col-span-1">
+          <h3 class="text-gray-400 font-semibold mb-2">Mail Us:</h3>
+          <p class="text-sm text-gray-300">
+            Internet Pvt Ltd,<br />Tech Village, Bengaluru,<br />560103, India
+          </p>
+        </div>
+      </div>
+    </footer>
+    {% endblock footer %}
+  </div>
+</div>
+
+
+<script>
+const images = [{% for img in background %}"{{ img.image.url }}",{% endfor %}];
+let current = 0;
+const bgDiv = document.getElementById("bg-slider");
+
+function changeBackground() {
+  if (bgDiv && images.length > 0) {
+    bgDiv.style.backgroundImage = `url('${images[current]}')`;
+    current = (current + 1) % images.length;
+  }
+}
+changeBackground();
+setInterval(changeBackground, 3000);
+
+// Swiper Script
+const swiper = new Swiper(".mySwiper", {
+  slidesPerView: 1,
+  spaceBetween: 30,
+  loop: true,
+  autoplay: {
+    delay: 3000,
+    disableOnInteraction: false,
+  },
+  pagination: {
+    el: ".swiper-pagination",
+    clickable: true,
+  },
+});
+
+// Changing Texts
+const texts = [
+  "Best Deal in Product",
+  "Discover amazing products at unbeatable prices.",
+  "Don't miss out on our limited-time offers!",
+  "Trusted by 10,000+ customers",
+  "Up to 70% off this week only!",
+];
+const output = document.getElementById("output");
+let index = 0;
+setInterval(() => {
+  output.innerHTML = texts[index];
+  index = (index + 1) % texts.length;
+}, 3000);
+
+// Token Expiry and Logout
+function isTokenExpired(token) {
+  if (!token) return true;
+  const [, payload] = token.split(".");
+  try {
+    const decoded = JSON.parse(atob(payload));
+    const now = Date.now() / 1000;
+    return decoded.exp < now;
+  } catch (err) {
+    return true;
+  }
+}
+
+function checkAuth() {
+  const token = localStorage.getItem("access");
+  if (isTokenExpired(token)) {
+    localStorage.removeItem("access");
+    localStorage.removeItem("refresh");
+    alert("Session expired. Please log in again.");
+    window.location.href = "/api/login/";
+  }
+}
+setInterval(checkAuth, 1000);
+
+function logout() {
+  const access = localStorage.getItem("access");
+  const refresh = localStorage.getItem("refresh");
+
+  if (!access || !refresh || isTokenExpired(access)) {
+    // If token is expired, skip API call and just clean up
+    localStorage.removeItem("access");
+    localStorage.removeItem("refresh");
+    alert("Session expired or already logged out.");
+    window.location.href = "/api/login/";
+    return;
+  }
+  console.log(access)
+  console.log(refresh)
+
+  fetch("/api/logout/", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${access}`,
+    },
+    body: JSON.stringify({ refresh }),
+  })
+    .then((res) => {
+      if (res.status === 205) {
+        localStorage.removeItem("access");
+        localStorage.removeItem("refresh");
+        alert("Logged out successfully");
+        window.location.href = "/api/login/";
+      } else {
+        alert("Logout failed");
+      }
+    })
+    .catch((error) => {
+      console.error("Logout error:", error);
+      alert("Something went wrong");
+    });
+}
+
+  </script>
+  </body>
+</html>

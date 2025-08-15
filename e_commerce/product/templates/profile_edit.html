@@ -1,0 +1,54 @@
+{% extends "index.html" %}
+{% block content %}
+<div class="max-w-2xl mx-auto mt-10 p-6 bg-white rounded-xl shadow-md">
+  <h2 class="text-2xl font-bold mb-6 text-center">Edit Profile</h2>
+  <form method="POST" enctype="multipart/form-data" class="space-y-4">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <div class="flex justify-end space-x-4">
+      <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded">Save</button>
+      <a href="{% url 'profile' profile.id %}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 py-2 px-4 rounded">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% comment %} {% extends "index.html" %}
+{% block content %}
+<div class="max-w-2xl mx-auto mt-10 p-8 bg-white shadow-xl rounded-2xl">
+  <h2 class="text-3xl font-extrabold text-center text-blue-700 mb-6">Edit Your Profile</h2>
+  
+  <form method="POST" enctype="multipart/form-data" class="space-y-6">
+    {% csrf_token %}
+    
+    <!-- Profile Photo Preview -->
+    <div>
+      <label class="block text-sm font-semibold text-gray-600 mb-1">Current Photo</label>
+      {% if profile.photo %}
+        <img src="{{ profile.photo.url }}" alt="Profile Photo" class="w-32 h-32 rounded-full object-cover border-4 border-blue-500 mb-3">
+      {% endif %}
+      {{ form.photo }}
+    </div>
+
+    <!-- Address Field -->
+    <div>
+      <label for="{{ form.address.id_for_label }}" class="block text-sm font-semibold text-gray-600 mb-1">Address</label>
+      {{ form.address|add_class:"w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" }}
+    </div>
+
+    <!-- Pincode Field -->
+    <div>
+      <label for="{{ form.pincode.id_for_label }}" class="block text-sm font-semibold text-gray-600 mb-1">Pincode</label>
+      {{ form.pincode|add_class:"w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" }}
+    </div>
+
+    <!-- Buttons -->
+    <div class="flex justify-end space-x-4">
+      <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg shadow">Save</button>
+      <a href="{% url 'profile' profile.id %}" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-6 rounded-lg shadow">Cancel</a>
+    </div>
+
+  </form>
+</div>
+{% endblock %} {% endcomment %}
+

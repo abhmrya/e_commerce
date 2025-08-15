@@ -1,0 +1,24 @@
+{% extends 'index.html' %}
+{% block content %}
+<div class="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow">
+  <img src="{{ product.product_image.url }}" alt="{{ product.product_name }}" class="w-full h-64 object-cover rounded-lg">
+
+  <h1 class="text-2xl font-bold mt-4">{{ product.product_name }}</h1>
+  <p class="text-lg text-gray-900 mt-2 font-bold">₹{{ product.rupees }}</p>
+
+  {% if product.product_offer %}
+    <p class="text-sm font-bold text-green-600 mt-1">{{ product.product_offer }}% OFF</p>
+  {% endif %}
+
+  <div class="text-yellow-500 mt-2">⭐ {{ product.rating }}</div>
+
+  <p class="text-gray-900">{{ product.review }}</p>
+
+  {% if user.is_authenticated and not user.is_staff %}
+    <form method="POST" action="{% url 'add_to_cart' product.id %}" class="mt-4">
+      {% csrf_token %}
+      <button class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg">Add to Cart</button>
+    </form>
+  {% endif %}
+</div>
+{% endblock %}
