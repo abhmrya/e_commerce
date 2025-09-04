@@ -50,7 +50,7 @@ Logs important request details for monitoring & debugging:
 
 ## 🚀 Installation
 ### 1️⃣ Clone the Repository
-
+```bash
 ``` git clone https://github.com/abhaymaurya57/e_commerce.git```
 cd e_commerce
 2️⃣ Create Virtual Environment & Install Dependencies
