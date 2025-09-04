@@ -50,33 +50,28 @@ Logs important request details for monitoring & debugging:
 
 ## 🚀 Installation
 ### 1️⃣ Clone the Repository
-```bash
-git clone https://github.com/abhaymaurya57/e_commerce.git
+
+``` git clone https://github.com/abhaymaurya57/e_commerce.git```
 cd e_commerce
 2️⃣ Create Virtual Environment & Install Dependencies
-bash
-Copy code
-python -m venv venv
+
+```python -m venv venv```
 source venv/bin/activate   # On Windows: venv\Scripts\activate
-pip install -r requirements.txt
+pip install -r requirements.txt```
 3️⃣ Run Migrations
-bash
-Copy code
-python manage.py migrate
+
+```python manage.py migrate```
 4️⃣ Start Redis Server (for Celery tasks)
-bash
-Copy code
-redis-server
+
+```redis-server```
 5️⃣ Start Celery Worker
-bash
-Copy code
-celery -A project_name worker -l info
+
+```celery -A project_name worker -l info```
 Replace project_name with your Django project’s name.
 
 6️⃣ Run the Development Server
-bash
-Copy code
-python manage.py runserver
+
+```python manage.py runserver```
 7️⃣ Access in Browser
-👉 http://127.0.0.1:8000/
+👉``` http://127.0.0.1:8000/```
 
