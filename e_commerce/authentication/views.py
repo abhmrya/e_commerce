@@ -15,7 +15,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
 
 from .serializers import RegisterSerializer, LoginSerializer
-from .tasks import send_welcome_email as send_welcome_email_task  
+# from .tasks import send_welcome_email as send_welcome_email_task  
 
 
 
@@ -41,7 +41,7 @@ class LoginView(APIView):
             subject = "Welcome to Our Site!"
             message = f"Hello {user.username}, thanks for login!"
             recipient_list = [user.email]
-            send_welcome_email_task.delay(subject, message, recipient_list)  
+            # send_welcome_email_task.delay(subject, message, recipient_list)  
 
             return Response({
                 "user": {
@@ -69,7 +69,7 @@ def logout_auth(request):
     subject = "Welcome to Our Site!"
     message = f"Hello {request.user.username}, thanks for login!"
     recipient_list = [request.user.email]
-    send_welcome_email_task.delay(subject, message, recipient_list) 
+    # send_welcome_email_task.delay(subject, message, recipient_list) 
     return redirect('login') 
 
 

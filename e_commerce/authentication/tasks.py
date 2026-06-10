@@ -11,15 +11,15 @@
 #     except Exception as e:
 #         print(f"[TASK ERROR] {e}")
 
-from django.core.mail import send_mail
-from django.contrib.auth.models import User
-from django.conf import settings
+# from django.core.mail import send_mail
+# from django.contrib.auth.models import User
+# from django.conf import settings
 
-def send_welcome_email(user_id):
-    user = User.objects.get(id=user_id)
-    send_mail(
-        subject="Welcome to MyShop!",
-        message=f"Hi {user.username}, welcome aboard!",
-        from_email=settings.EMAIL_HOST_USER,
-        recipient_list=[user.email],
-    )
+# def send_welcome_email(user_id):
+#     user = User.objects.get(id=user_id)
+#     send_mail(
+#         subject="Welcome to MyShop!",
+#         message=f"Hi {user.username}, welcome aboard!",
+#         from_email=settings.EMAIL_HOST_USER,
+#         recipient_list=[user.email],
+#     )
