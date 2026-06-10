@@ -341,7 +341,7 @@ if (currentPath !== LOGIN_PATH) {
   function checkAuth() {
     if (alreadyRedirected) return;
 
-    const token = localStorage.getItem("access");
+    const token = localStorage.getItem("access_token");
     if (isTokenExpired(token)) {
       alreadyRedirected = true;
       localStorage.clear();
@@ -356,37 +356,32 @@ if (currentPath !== LOGIN_PATH) {
 // Manual Logout
 // ==============================
 function logout() {
-  const access = localStorage.getItem("access");
-  const refresh = localStorage.getItem("refresh");
+    const access = localStorage.getItem("access");
+    const refresh = localStorage.getItem("refresh");
 
-  if (!access || !refresh || isTokenExpired(access)) {
-    localStorage.clear();
-    <!--alert("Session expired or already logged out.");-->
-    window.location.href = LOGIN_PATH;
-    return;
-  }
+    console.log("Access:", access);
+    console.log("Refresh:", refresh);
 
-  fetch("/api/logout/", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${access}`,
-    },
-    body: JSON.stringify({ refresh }),
-  })
-    .then((res) => {
-      if (res.status === 200 || res.status === 205) {
-        localStorage.clear();
-       <!-- alert("Logged out successfully.");-->
-        window.location.href = LOGIN_PATH;
-      } else {
-        alert("Logout failed.");
-      }
+    fetch("/api/logout/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${access}`,
+        },
+        body: JSON.stringify({
+            refresh: refresh
+        }),
     })
-    .catch((error) => {
-      console.error("Logout error:", error);
-      <!--alert("Something went wrong.");-->
-    });
+    .then(res => res.json())
+    .then(data => {
+        console.log(data);
+
+        localStorage.removeItem("access");
+        localStorage.removeItem("refresh");
+
+        window.location.href = "/api/";
+    })
+    .catch(err => console.log(err));
 }
 </script>
 

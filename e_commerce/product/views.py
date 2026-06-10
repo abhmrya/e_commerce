@@ -70,7 +70,9 @@ def delete_product(request, product_id):
 
 @login_required
 def add_to_cart(request, product_id):
-    profile = Profile.objects.get(user=request.user)
+    profile, created = Profile.objects.get_or_create(
+    user=request.user
+)
     product = get_object_or_404(Product, id=product_id)
     cart, _ = Cart.objects.get_or_create(user=profile)
 
@@ -85,7 +87,7 @@ def add_to_cart(request, product_id):
 
 @login_required
 def view_cart(request):
-    profile = Profile.objects.get(user=request.user)
+    profile, created = Profile.objects.get_or_create(user=request.user)
     cart = Cart.objects.filter(user=profile).first()
 
     cart_items = cart.cartitem_set.select_related('product') if cart else []
@@ -98,7 +100,9 @@ def view_cart(request):
 
 @login_required
 def remove_from_cart(request, product_id):
-    profile = Profile.objects.get(user=request.user)
+    profile, created = Profile.objects.get_or_create(
+    user=request.user
+)
     cart = Cart.objects.filter(user=profile).first()
     if cart:
         cart_item = CartItem.objects.filter(cart=cart, product_id=product_id).first()
@@ -116,14 +120,15 @@ def product_detail(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     return render(request, 'product_detail.html', {'product': product,'user': request.user})
 
-def profile_details(request, id):
-    profile = Profile.objects.get(pk=id)
-    return render(request, 'profile.html', {'profile': profile})
+from django.shortcuts import get_object_or_404
 
+def profile_details(request, id):
+    profile = get_object_or_404(Profile, pk=id)
+    return render(request, "profile.html", {"profile": profile})
 
 
 def order_details_view(request, id):
-    profile = get_object_or_404(Profile, user=request.user)
+    profile, created = Profile.objects.get_or_create(user=request.user)
     cart = Cart.objects.filter(user=profile).first()
 
     if not cart:
@@ -139,8 +144,11 @@ def order_details_view(request, id):
 
 @login_required
 def download_invoice(request, id):
-    profile = get_object_or_404(Profile, user=request.user)
+    profile, created = Profile.objects.get_or_create(user=request.user)
     cart = Cart.objects.filter(user=profile).first()
+
+    if not cart:
+        return HttpResponse("No cart found")
     items = cart.cartitem_set.all()
     template = get_template('invoice.html')
     html_string = template.render({'cart': cart, 'items': items, 'profile': profile})

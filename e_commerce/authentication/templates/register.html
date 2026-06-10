@@ -141,17 +141,6 @@
     }
   });
 
-
-  fetch("/get-jwt-token-after-google-login/")
-  .then(response => response.json())
-  .then(data => {
-    console.log("JWT Token:", data);
-    localStorage.setItem("access", data.access);
-    localStorage.setItem("refresh", data.refresh);
-    // redirect to your dashboard or frontend page
-    window.location.href = "/api/";
-  });
-
 </script>
 </body>
 </html>

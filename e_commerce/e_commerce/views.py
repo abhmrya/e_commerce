@@ -14,9 +14,9 @@ def google_login_jwt_token(request):
     })
 
 #<--------test to ip addresh save-------->
-from django.http import JsonResponse
-def test_view(request):
-    return JsonResponse({
-        "ip": request.client_ip,
-        "user_agent": request.client_user_agent
-    })
+# from django.http import JsonResponse
+# def test_view(request):
+#     return JsonResponse({
+#         "ip": request.client_ip,
+#         "user_agent": request.client_user_agent
+#     })

@@ -67,23 +67,70 @@ def logout_auth(request):
     print('session long out')
     logout(request)
     subject = "Welcome to Our Site!"
-    message = f"Hello {request.username}, thanks for login!"
-    recipient_list = [request.email]
-    send_welcome_email_task.delay(subject, message, recipient_list)  
+    message = f"Hello {request.user.username}, thanks for login!"
+    recipient_list = [request.user.email]
+    send_welcome_email_task.delay(subject, message, recipient_list) 
+    return redirect('login') 
 
+
+# class LogoutView(APIView):
+#     permission_classes = [permissions.IsAuthenticated]
+
+#     def post(self, request):
+#         print('jwt long out')
+#         try:
+#             logout(request)
+#             refresh_token = request.data["refresh"]
+#             token = RefreshToken(refresh_token)
+#             token.blacklist()
+#             return Response(status=status.HTTP_205_RESET_CONTENT)
+#         except TokenError:
+#             return Response(status=status.HTTP_400_BAD_REQUEST)
+#         except Exception as e:
+#             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+# class LogoutView(APIView):
+#     permission_classes = [AllowAny]
+
+#     def post(self, request):
+#         print("JWT LOGOUT HIT")
+#         print(request.data)
+
+#         try:
+#             refresh_token = request.data.get("refresh")
+
+#             if refresh_token:
+#                 token = RefreshToken(refresh_token)
+#                 token.blacklist()
+
+#             logout(request)
+
+#             return Response(
+#                 {"message": "Logout success"},
+#                 status=status.HTTP_200_OK
+#             )
+
+#         except Exception as e:
+#             print(e)
+#             return Response(
+#                 {"error": str(e)},
+#                 status=status.HTTP_400_BAD_REQUEST
+#             )
 
 class LogoutView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
-        print('jwt long out')
-        try:
-            logout(request)
-            refresh_token = request.data["refresh"]
+        print("JWT LOGOUT HIT")
+
+        logout(request)   # session bhi khatam
+
+        refresh_token = request.data.get("refresh")
+        if refresh_token:
             token = RefreshToken(refresh_token)
             token.blacklist()
-            return Response(status=status.HTTP_205_RESET_CONTENT)
-        except TokenError:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:
-            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(
+            {"message": "Logged out successfully"},
+            status=status.HTTP_200_OK
+        )

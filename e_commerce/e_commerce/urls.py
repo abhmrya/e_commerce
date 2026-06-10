@@ -26,13 +26,14 @@ urlpatterns = [
     # path('',include('product.urls')),
     path('api/',include('product.urls')),
     path('api-auth/', include('rest_framework.urls')),
+
     
      
     path('auth/', include('social_django.urls', namespace='social')),
     path('get-jwt-token-after-google-login/', views.google_login_jwt_token, name='google_jwt_token'),
 
     #check ip addresh save or not
-    path('test/', views.test_view,name="test"),
+    # path('test/', views.test_view,name="test"),
 
     path("__reload__/", include("django_browser_reload.urls")),
 ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
