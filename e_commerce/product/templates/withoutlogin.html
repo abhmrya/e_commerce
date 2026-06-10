@@ -1,6 +1,6 @@
 {% load static %}
 {% get_media_prefix as MEDIA_URL %}
-{% load tailwind_tags %}
+{% comment %} {% load tailwind_tags %} {% endcomment %}
 
 
 <!DOCTYPE html>
@@ -9,7 +9,8 @@
     <meta charset="UTF-8" />
     <title>{% block title %}E-Commerce{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    {% tailwind_css %}
+    {% comment %} {% tailwind_css %} {% endcomment %}
+    <script src="https://cdn.tailwindcss.com"></script>
 
       <link rel="stylesheet" href="{% static 'style.css' %}" />
 
