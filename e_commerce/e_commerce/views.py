@@ -20,3 +20,16 @@ def google_login_jwt_token(request):
 #         "ip": request.client_ip,
 #         "user_agent": request.client_user_agent
 #     })
+
+from django.http import HttpResponse
+from django.contrib.auth.models import User
+
+def create_admin(request):
+    if not User.objects.filter(username='admin').exists():
+        User.objects.create_superuser(
+            username='admin',
+            email='admin@gmail.com',
+            password='admin@123'
+        )
+        return HttpResponse("Superuser created!")
+    return HttpResponse("Already exists")

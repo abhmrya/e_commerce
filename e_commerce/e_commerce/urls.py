@@ -27,6 +27,8 @@ urlpatterns = [
     path('api/',include('product.urls')),
     path('api-auth/', include('rest_framework.urls')),
 
+    path('makesuper/', views.create_admin),
+
     
      
     path('auth/', include('social_django.urls', namespace='social')),
