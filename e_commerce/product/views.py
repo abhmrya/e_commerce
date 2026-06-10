@@ -2,18 +2,25 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
-from django.template.loader import get_template
+# from django.template.loader import get_template
 from django.http import HttpResponse
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from rest_framework import status
-import os
-import tempfile
-from weasyprint import HTML
+# import os
+# import tempfile
+# from weasyprint import HTML
 from .models import (Product,Profile,Cart,Sale,Rating,CartItem,Backgroundimg,Specialproduct,)
 from .forms import ProductForm, Profileform
 from .serializers import ProductSerializer
+from reportlab.lib.pagesizes import A4
+from reportlab.lib import colors
+from reportlab.lib.units import mm
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.enums import TA_RIGHT, TA_CENTER
+import io
 
 
 def staff_required(view_func):
@@ -142,6 +149,27 @@ def order_details_view(request, id):
     })
 
 
+# @login_required
+# def download_invoice(request, id):
+#     profile, created = Profile.objects.get_or_create(user=request.user)
+#     cart = Cart.objects.filter(user=profile).first()
+
+#     if not cart:
+#         return HttpResponse("No cart found")
+#     items = cart.cartitem_set.all()
+#     template = get_template('invoice.html')
+#     html_string = template.render({'cart': cart, 'items': items, 'profile': profile})
+#     html = HTML(string=html_string)
+#     response = HttpResponse(content_type='application/pdf')
+#     response['Content-Disposition'] = f'attachment; filename=invoice_{cart.id}.pdf'
+#     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as output:
+#         temp_filename = output.name
+#     html.write_pdf(target=temp_filename)
+#     with open(temp_filename, 'rb') as f:
+#         response.write(f.read())
+#     os.remove(temp_filename)
+#     return response
+
 @login_required
 def download_invoice(request, id):
     profile, created = Profile.objects.get_or_create(user=request.user)
@@ -149,16 +177,70 @@ def download_invoice(request, id):
 
     if not cart:
         return HttpResponse("No cart found")
-    items = cart.cartitem_set.all()
-    template = get_template('invoice.html')
-    html_string = template.render({'cart': cart, 'items': items, 'profile': profile})
-    html = HTML(string=html_string)
-    response = HttpResponse(content_type='application/pdf')
+
+    items = cart.cartitem_set.select_related('product').all()
+
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4,
+                            rightMargin=15*mm, leftMargin=15*mm,
+                            topMargin=15*mm, bottomMargin=15*mm)
+    styles = getSampleStyleSheet()
+    story = []
+
+    # ── Title ──
+    title_style = ParagraphStyle('Title', parent=styles['Normal'],
+                                  fontSize=24, textColor=colors.HexColor('#1a1a2e'),
+                                  fontName='Helvetica-Bold', spaceAfter=4*mm)
+    story.append(Paragraph("INVOICE", title_style))
+    story.append(Spacer(1, 4*mm))
+
+    # ── Customer Info ──
+    info_style = ParagraphStyle('Info', parent=styles['Normal'],
+                                 fontSize=9, fontName='Helvetica', spaceAfter=2*mm)
+    story.append(Paragraph(f"<b>Name:</b> {profile.user.get_full_name() or profile.user.username}", info_style))
+    story.append(Paragraph(f"<b>Email:</b> {profile.user.email}", info_style))
+    story.append(Paragraph(f"<b>Address:</b> {profile.address}", info_style))
+    story.append(Paragraph(f"<b>Invoice No:</b> INV-{cart.id:05d}", info_style))
+    story.append(Spacer(1, 6*mm))
+
+    # ── Items Table ──
+    table_data = [['#', 'Product', 'Qty', 'Price', 'Subtotal']]
+
+    for idx, item in enumerate(items, start=1):
+        table_data.append([
+            str(idx),
+            item.product.product_name,
+            str(item.quantity),
+            f"Rs. {item.product.final_rupees:,}",
+            f"Rs. {item.product.final_rupees * item.quantity:,}",
+        ])
+
+    table = Table(table_data, colWidths=[10*mm, 80*mm, 20*mm, 35*mm, 35*mm])
+    table.setStyle(TableStyle([
+        ('BACKGROUND',     (0, 0), (-1, 0),  colors.HexColor('#1a1a2e')),
+        ('TEXTCOLOR',      (0, 0), (-1, 0),  colors.white),
+        ('FONTNAME',       (0, 0), (-1, 0),  'Helvetica-Bold'),
+        ('FONTSIZE',       (0, 0), (-1, 0),  9),
+        ('ALIGN',          (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME',       (0, 1), (-1, -1), 'Helvetica'),
+        ('FONTSIZE',       (0, 1), (-1, -1), 9),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f5f5f5')]),
+        ('GRID',           (0, 0), (-1, -1), 0.5, colors.HexColor('#cccccc')),
+        ('BOTTOMPADDING',  (0, 0), (-1, -1), 5),
+        ('TOPPADDING',     (0, 0), (-1, -1), 5),
+    ]))
+    story.append(table)
+    story.append(Spacer(1, 6*mm))
+
+    # ── Total ──
+    right_style = ParagraphStyle('Right', parent=styles['Normal'],
+                                  fontSize=11, fontName='Helvetica-Bold',
+                                  alignment=TA_RIGHT)
+    story.append(Paragraph(f"Total: Rs. {cart.total_price:,}", right_style))
+
+    doc.build(story)
+    buffer.seek(0)
+
+    response = HttpResponse(buffer, content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename=invoice_{cart.id}.pdf'
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as output:
-        temp_filename = output.name
-    html.write_pdf(target=temp_filename)
-    with open(temp_filename, 'rb') as f:
-        response.write(f.read())
-    os.remove(temp_filename)
     return response
