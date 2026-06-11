@@ -49,8 +49,7 @@
 
     <!-- Profile, Cart, Auth -->
     {% if user.is_authenticated %}
-      <a href="{% url 'profile' user.id %}" class="flex items-center gap-2 text-sm font-semibold">
-        {% if user.profile.photo %}
+        <a href="{% url 'profile' user.profile.id %}" class="flex items-center gap-2 text-sm font-semibold">        {% if user.profile.photo %}
           <img src="{{ user.profile.photo.url }}" alt="Profile"
                class="w-8 h-8 rounded-full border-2 border-white object-cover">
         {% else %}
