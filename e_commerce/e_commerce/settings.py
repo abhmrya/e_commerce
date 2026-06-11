@@ -65,7 +65,7 @@ INSTALLED_APPS = [
     # 'theme',
     # 'django_browser_reload',
     'authentication',
-    'product',
+    'product.apps.ProductConfig',
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist',
     'social_django',
@@ -77,6 +77,14 @@ INSTALLED_APPS = [
     'cloudinary_storage',
     
 ]
+STORAGES = {
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 
